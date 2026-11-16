@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Cortx · AI Agent 运行时系统架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "docs/cortx-architecture.html",
+    "repository": {
+      "url": "https://github.com/CHNAICORP/cortx",
+      "revision": "41a181001dff1ffffce0c33b78210bcd373cc57c"
+    },
+    "viewBox": [1380, 780],
+    "views": [
+      {
+        "id": "agentic-loop",
+        "label": "主链路 Think → Act",
+        "focus": ["cli", "loop", "llm", "policy", "registry"],
+        "note": "一次对话如何流经 推理 → 审计 → 执行 主链路。"
+      },
+      {
+        "id": "execution-layer",
+        "label": "执行层与 MCP",
+        "focus": ["registry", "tools_local", "subagents", "net", "mcp", "mcp_servers"],
+        "note": "69 个注册工具如何落到本地执行、子代理、网络与 MCP 子进程。"
+      },
+      {
+        "id": "state-skills",
+        "label": "记忆与技能",
+        "focus": ["loop", "memory", "skills"],
+        "note": "跨会话事实记忆与可安装的专家技能如何注入主循环。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM Provider",
+      "sublabel": "DeepSeek · GLM · 流式补全",
+      "pos": [316, 56],
+      "size": [210, 62],
+      "sources": [{ "path": "src/core/llm.ts", "label": "LLM 客户端" }]
+    },
+    {
+      "id": "cli",
+      "type": "frontend",
+      "label": "CLI · ctx",
+      "sublabel": "REPL · AskUser 面板 · /命令",
+      "pos": [60, 240],
+      "size": [176, 66],
+      "sources": [{ "path": "src/cli/main.ts", "label": "CLI 入口" }]
+    },
+    {
+      "id": "loop",
+      "type": "backend",
+      "label": "Agentic Loop 核心引擎",
+      "sublabel": "Think → Guard → Act → Reflect",
+      "pos": [312, 236],
+      "size": [204, 74],
+      "sources": [
+        { "path": "src/core/loop.ts", "label": "主循环" },
+        { "path": "src/core/hooks.ts", "label": "Hooks" }
+      ]
+    },
+    {
+      "id": "policy",
+      "type": "security",
+      "label": "PolicyEngine",
+      "sublabel": "4 级审计 · 3 种权限模式",
+      "pos": [620, 240],
+      "size": [184, 66],
+      "sources": [{ "path": "src/core/policy.ts", "label": "策略引擎" }]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "Tool Registry",
+      "sublabel": "69 个内置工具统一注册",
+      "pos": [898, 240],
+      "size": [192, 66],
+      "sources": [{ "path": "src/core/registry.ts", "label": "工具注册表" }]
+    },
+    {
+      "id": "skills",
+      "type": "backend",
+      "label": "Skills 技能系统",
+      "sublabel": "7 内置 · GitHub / clawhub 安装",
+      "pos": [280, 440],
+      "size": [176, 66],
+      "sources": [{ "path": "src/core/skills.ts", "label": "技能加载" }]
+    },
+    {
+      "id": "memory",
+      "type": "database",
+      "label": "Memory Store",
+      "sublabel": "agent.db · SQLite 跨会话记忆",
+      "pos": [60, 440],
+      "size": [176, 66],
+      "sources": [{ "path": "src/core/memory_store.ts", "label": "记忆存储" }]
+    },
+    {
+      "id": "tools_local",
+      "type": "backend",
+      "label": "本地工具",
+      "sublabel": "文件 · Shell · Git · Python",
+      "pos": [500, 440],
+      "size": [184, 66],
+      "sources": [
+        { "path": "src/tools/file.ts", "label": "文件" },
+        { "path": "src/tools/exec.ts", "label": "执行" },
+        { "path": "src/tools/git.ts", "label": "Git" }
+      ]
+    },
+    {
+      "id": "subagents",
+      "type": "backend",
+      "label": "Subagents 子代理",
+      "sublabel": "spawn 并行 fan-out · 上下文隔离",
+      "pos": [724, 440],
+      "size": [184, 66],
+      "sources": [{ "path": "src/tools/subagent.ts", "label": "子代理派遣" }]
+    },
+    {
+      "id": "net",
+      "type": "backend",
+      "label": "网络工具",
+      "sublabel": "web_search · web_fetch · 代理",
+      "pos": [938, 440],
+      "size": [176, 66],
+      "sources": [{ "path": "src/tools/net.ts", "label": "网络" }]
+    },
+    {
+      "id": "mcp",
+      "type": "backend",
+      "label": "MCP Client",
+      "sublabel": "注册表发现 · 会话管理",
+      "pos": [1138, 440],
+      "size": [176, 66],
+      "sources": [{ "path": "src/tools/mcp.ts", "label": "MCP 客户端" }]
+    },
+    {
+      "id": "mcp_servers",
+      "type": "external",
+      "label": "MCP 服务器",
+      "sublabel": "chrome-devtools · cua-driver",
+      "pos": [1134, 640],
+      "size": [184, 74]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Cortx 运行时 · TypeScript + Python 双实现",
+      "wraps": ["cli", "loop", "policy", "registry", "skills", "memory", "tools_local", "subagents", "net", "mcp"],
+      "pad": 26
+    },
+    {
+      "kind": "region",
+      "label": "MCP 服务器子进程 (stdio)",
+      "wraps": ["mcp_servers"],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    { "id": "e_cli_loop", "from": "cli", "to": "loop", "label": "用户输入", "variant": "emphasis" },
+    { "id": "e_loop_llm", "from": "loop", "to": "llm", "label": "Think · 流式", "variant": "emphasis", "fromSide": "top", "toSide": "bottom" },
+    { "id": "e_loop_policy", "from": "loop", "to": "policy", "label": "Guard · 审计", "variant": "emphasis" },
+    { "id": "e_policy_registry", "from": "policy", "to": "registry", "label": "Act · 放行", "variant": "emphasis" },
+    { "id": "e_registry_tools", "from": "registry", "to": "tools_local", "label": "执行", "fromSide": "bottom", "toSide": "top" },
+    { "id": "e_registry_subagents", "from": "registry", "to": "subagents", "label": "spawn 并行", "fromSide": "bottom", "toSide": "top" },
+    { "id": "e_registry_net", "from": "registry", "to": "net", "label": "web 请求", "fromSide": "bottom", "toSide": "top", "labelAt": [1026, 410] },
+    { "id": "e_registry_mcp", "from": "registry", "to": "mcp", "label": "mcp_call_tool", "fromSide": "bottom", "toSide": "top" },
+    { "id": "e_mcp_servers", "from": "mcp", "to": "mcp_servers", "label": "stdio · JSON-RPC", "fromSide": "bottom", "toSide": "top", "labelAt": [1226, 560] },
+    { "id": "e_loop_skills", "from": "loop", "to": "skills", "label": "use_skill 预载", "variant": "dashed", "fromSide": "left", "toSide": "top", "via": [[264, 273], [264, 410], [368, 410]], "labelAt": [264, 340] },
+    { "id": "e_loop_memory", "from": "loop", "to": "memory", "label": "remember / recall", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "via": [[414, 370], [148, 370]], "labelAt": [355, 370] }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Agentic Loop 设计哲学",
+      "items": [
+        "Think → Guard → Act → Reflect 四段循环",
+        "PolicyEngine 4 级审计 · 3 种权限模式",
+        "上下文 85% 才 compact · 循环检测防卡死"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "双语言同构实现",
+      "items": [
+        "TypeScript (npm) ↔ Python (PyPI) 各 69 工具",
+        "CLI 统一入口 ctx：REPL / 单次查询",
+        "Share-nothing：独立 work_dir / executor"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "安全与隔离",
+      "items": [
+        "standard / auto / yolo 分级放行",
+        "Subagents 上下文隔离，只回传结果摘要",
+        "MCP 独立 stdio 子进程：29 + 55 工具"
+      ]
+    }
+  ]
+}
